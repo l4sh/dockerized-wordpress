@@ -1,0 +1,50 @@
+version: '3.3'
+
+services:
+  db:
+    image: mysql:5.7
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: wproot
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+
+  wordpress:
+    depends_on:
+      - db
+    image: wordpress:latest
+    ports:
+      - "8000:80"
+    volumes:
+      - wp_data:/var/www/html
+      - ./wp-content:/var/www/html/wp-content
+    restart: unless-stopped
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_CONFIG_EXTRA: |
+        /* Site URL */
+        define('WP_HOME', 'https://wordpress.example.com');     # <-- CHANGEME
+        define('WP_SITEURL', 'https://wordpress.example.com');  # <-- CHANGEME
+        /* Developer friendly settings */
+        # define('SCRIPT_DEBUG', true);
+        # define('CONCATENATE_SCRIPTS', false);
+        # define('WP_DEBUG', true);
+        # define('WP_DEBUG_LOG', true);
+        # define('SAVEQUERIES', true);
+        /* Multisite */
+        # define('WP_ALLOW_MULTISITE', true );
+        # define('MULTISITE', true);
+        # define('SUBDOMAIN_INSTALL', false);
+        # define('DOMAIN_CURRENT_SITE', 'wordpress.example.com');  # <-- CHANGEME
+        # define('PATH_CURRENT_SITE', '/');
+        # define('SITE_ID_CURRENT_SITE', 1);
+        # define('BLOG_ID_CURRENT_SITE', 1);
+
+volumes:
+  db_data: {}
+  wp_data: {}
